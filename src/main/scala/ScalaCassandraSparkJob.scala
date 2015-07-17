@@ -12,9 +12,12 @@ object ScalaCassandraSparkJob {
     val conf: SparkConf = new SparkConf(true).set("spark.cassandra.connection.host", "chviromgdev01")
     val sc: SparkContext = new SparkContext("spark://chviromgdev01:7077", "test", conf)
 
-    val tick = sc.cassandraTable("ticks", "tick")
+    val eurusdTicks = sc.cassandraTable("ticks", "tick")
+      .filter( r => r.getString("symbol") == "EUR/USD" )
 
-    println( tick.first() )
+    val sum = eurusdTicks.map( r => r.getDecimal("last") ).sum()
+
+    println( sum / eurusdTicks.count() )
 
    // println(tick.count())
   }

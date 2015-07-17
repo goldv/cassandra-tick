@@ -186,7 +186,7 @@ public class CassandraConnector {
             new BigDecimal(row.get(6) ) ,
             new BigDecimal(row.get(5) ),
             UUIDs.startOf( Long.parseLong(row.get(0))),
-            new BigDecimal( row.get(0) ),
+            new BigDecimal( row.get(1) ),
             "EUR/USD",
             Integer.parseInt( row.get(4) ),
             Integer.parseInt(row.get(5) )
@@ -205,7 +205,7 @@ public class CassandraConnector {
 
     public void insertTicks(List<Tick> ticks){
         for( Tick tick : ticks){
-            mapper.save(tick);
+            mapper.saveAsync(tick);
         }
     }
 
@@ -222,13 +222,16 @@ public class CassandraConnector {
 
     public static void main(String... args) throws Exception{
         CassandraConnector client = new CassandraConnector();
-        client.connect("127.0.0.1");
+        client.connect("chviromgdev01");
         client.createSchema();
 
+        System.out.println(System.currentTimeMillis() +  " Reading from data file");
         List<Tick> ticks = client.readFromFile("EUR.USD.csv");
+        System.out.println(System.currentTimeMillis() + " Read " + ticks.size() + " from data file");
 
         client.insertTicks(ticks);
-        client.retrieveTicks();
+        System.out.println(System.currentTimeMillis() + " inserting records complete");
+        //client.retrieveTicks();
 
         client.close();
     }
